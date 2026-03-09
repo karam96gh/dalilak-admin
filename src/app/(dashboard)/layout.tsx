@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/auth";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -13,18 +13,20 @@ export default function DashboardLayout({
 }) {
     const { token, hydrate } = useAuthStore();
     const router = useRouter();
+    const [isHydrated, setIsHydrated] = useState(false);
 
     useEffect(() => {
         hydrate();
+        setIsHydrated(true);
     }, [hydrate]);
 
     useEffect(() => {
-        if (!token) {
+        if (isHydrated && !token) {
             router.replace("/login");
         }
-    }, [token, router]);
+    }, [isHydrated, token, router]);
 
-    if (!token) {
+    if (!isHydrated || !token) {
         return null;
     }
 
