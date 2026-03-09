@@ -1,36 +1,196 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# دليلك - لوحة تحكم الإدارة
 
-## Getting Started
+لوحة تحكم إدارية شاملة لتطبيق دليلك. مبنية باستخدام Next.js 14، TypeScript، و Tailwind CSS.
 
-First, run the development server:
+## الميزات الرئيسية
+
+- 🔐 **المصادقة**: تسجيل دخول آمن مع JWT
+- 📊 **لوحة التحكم**: إحصائيات وتقارير شاملة
+- 📂 **إدارة الأقسام**: دعم الأقسام الهرمية (3 مستويات)
+- 📝 **إدارة الإدخالات**: CRUD مع دعم الصور المتعددة
+- 🗺️ **إدارة المحافظات**: تحديث وترتيب المحافظات
+- 📢 **إدارة الإعلانات**: مع دعم الترتيب المخصص والتواريخ
+- 🔔 **إدارة الإشعارات**: إنشاء وتحديث الإشعارات مع pagination
+- ⚙️ **الإعدادات**: معلومات النظام والحساب
+- 🎨 **واجهة مستخدم**: تصميم عصري وسريع الاستجابة
+- 📱 **تصميم متجاوب**: يعمل على جميع الأجهزة
+
+## البدء السريع
+
+### المتطلبات
+- Node.js 18+
+- npm أو yarn
+
+### التثبيت
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# استنساخ المشروع
+git clone <repo-url>
+cd admin
+
+# تثبيت الاعتماديات
+npm install
+
+# إنشاء ملف البيئة
+cp .env.example .env.local
+
+# تحديث NEXT_PUBLIC_API_BASE_URL إذا لزم الأمر
+# NEXT_PUBLIC_API_BASE_URL=http://localhost:1996/api/v1
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### تشغيل الخادم
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# بيئة التطوير
+npm run dev
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# بيئة الإنتاج
+npm run build
+npm run start
+```
 
-## Learn More
+افتح [http://localhost:3000](http://localhost:3000) في المتصفح.
 
-To learn more about Next.js, take a look at the following resources:
+### بيانات الدخول
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+اسم المستخدم: admin
+كلمة المرور: admin123
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## الهيكل
 
-## Deploy on Vercel
+```
+src/
+├── app/                      # Next.js App Router
+│   ├── (auth)/              # صفحات المصادقة
+│   │   ├── login/           # صفحة تسجيل الدخول
+│   │   └── layout.tsx
+│   ├── (dashboard)/         # نطاق لوحة التحكم
+│   │   ├── page.tsx         # الرئيسية
+│   │   ├── categories/      # إدارة الأقسام
+│   │   ├── listings/        # إدارة الإدخالات
+│   │   ├── governorates/    # إدارة المحافظات
+│   │   ├── notifications/   # إدارة الإشعارات
+│   │   ├── ads/             # إدارة الإعلانات
+│   │   ├── settings/        # الإعدادات
+│   │   └── layout.tsx
+│   ├── layout.tsx
+│   └── globals.css
+├── components/
+│   ├── layout/
+│   │   ├── Sidebar.tsx
+│   │   ├── Header.tsx
+│   │   └── MobileSidebar.tsx
+│   └── ui/                  # مكونات Shadcn/ui
+├── lib/
+│   ├── api.ts              # عميل Axios مع اعتراضات
+│   ├── auth.ts             # متجر المصادقة (Zustand)
+│   └── utils.ts
+└── hooks/
+    └── use-toast.ts
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## المتغيرات البيئية
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```env
+# قاعدة URL للـ API
+NEXT_PUBLIC_API_BASE_URL=http://localhost:1996/api/v1
+
+# معلومات التطبيق
+NEXT_PUBLIC_APP_NAME=دليلك - لوحة التحكم
+NEXT_PUBLIC_APP_VERSION=1.0.0
+```
+
+## التكنولوجيات المستخدمة
+
+- **Next.js 14**: إطار العمل الأساسي
+- **TypeScript**: أمان Type
+- **Tailwind CSS**: تنسيقات CSS
+- **React Hook Form**: إدارة النماذج
+- **Zustand**: إدارة الحالة
+- **Axios**: طلبات HTTP
+- **Shadcn/ui**: مكونات UI منقحة
+- **Zod**: التحقق من صحة البيانات
+
+## الإدارة
+
+### إضافة صفحة جديدة
+
+```bash
+mkdir -p src/app/\(dashboard\)/new-page
+touch src/app/\(dashboard\)/new-page/page.tsx
+```
+
+### تنسيق صفحة
+
+```typescript
+"use client";
+
+import { useEffect, useState } from "react";
+import api from "@/lib/api";
+import { useAuthStore } from "@/lib/auth";
+
+export default function NewPage() {
+    const { token } = useAuthStore();
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!token) return;
+        
+        const fetchData = async () => {
+            try {
+                const response = await api.get("/admin/endpoint");
+                setData(response);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [token]);
+
+    return (
+        <div>
+            {loading ? <p>جاري التحميل...</p> : <p>{JSON.stringify(data)}</p>}
+        </div>
+    );
+}
+```
+
+## اختبار الـ API
+
+```bash
+# الحصول على رمز المصادقة
+token=$(curl -s -X POST http://localhost:1996/api/v1/admin/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin123"}' | jq -r '.data.token')
+
+# استخدام الرمز
+curl -X GET http://localhost:1996/api/v1/admin/categories \
+  -H "Authorization: Bearer $token"
+```
+
+## المشاكل الشائعة
+
+### خطأ الاتصال بـ API
+- تأكد من تشغيل الخادم الخلفي على المنفذ المتوقع
+- تحقق من `NEXT_PUBLIC_API_BASE_URL` في `.env.local`
+
+### مشاكل CORS
+- تأكد من تفعيل CORS في الخادم الخلفي
+- تحقق من عنوان الأصل المسموح به
+
+## المساهمة
+
+1. إنشاء فرع للميزة الجديدة
+2. الالتزام بالتغييرات
+3. دفع الفرع
+4. إنشاء طلب دمج
+
+## الترخيص
+
+MIT
