@@ -11,22 +11,25 @@ export default function DashboardLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const { token, hydrate } = useAuthStore();
+    const { hydrate } = useAuthStore();
     const router = useRouter();
-    const [isHydrated, setIsHydrated] = useState(false);
+    const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
         hydrate();
-        setIsHydrated(true);
-    }, [hydrate]);
+        // Check after hydrate completes and state updates
+        const timeout = setTimeout(() => {
+            const storedToken = localStorage.getItem('adminToken');
+            if (!storedToken) {
+                router.replace("/login");
+            } else {
+                setIsReady(true);
+            }
+        }, 100);
+        return () => clearTimeout(timeout);
+    }, [hydrate, router]);
 
-    useEffect(() => {
-        if (isHydrated && !token) {
-            router.replace("/login");
-        }
-    }, [isHydrated, token, router]);
-
-    if (!isHydrated || !token) {
+    if (!isReady) {
         return null;
     }
 
