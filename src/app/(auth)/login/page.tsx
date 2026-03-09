@@ -48,7 +48,7 @@ export default function LoginPage() {
                 title: "تم تسجيل الدخول",
                 description: "أهلاً بك في لوحة التحكم",
             });
-            router.push("/");
+            window.location.href = "/dalilak/";
         } catch (error: any) {
             toast({
                 variant: "destructive",
