@@ -30,6 +30,7 @@ interface Listing {
   categoryId: number; governorateId: number;
   phone: string | null; whatsapp: string | null; email: string | null;
   website: string | null; address: string | null;
+  locationLat: number | null; locationLng: number | null;
   isFeatured: boolean; isActive: boolean; viewCount: number;
   category: { id: number; name: string; parent?: { id: number; name: string; parent?: { id: number; name: string } } };
   governorate: { id: number; name: string };
@@ -39,12 +40,14 @@ interface Listing {
 interface ListingForm {
   name: string; description: string; governorateId: string;
   phone: string; whatsapp: string; email: string; website: string; address: string;
+  locationLat: string; locationLng: string;
   isFeatured: boolean; isActive: boolean;
 }
 
 const defaultForm: ListingForm = {
   name: "", description: "", governorateId: "",
   phone: "", whatsapp: "", email: "", website: "", address: "",
+  locationLat: "", locationLng: "",
   isFeatured: false, isActive: true,
 };
 
@@ -205,6 +208,8 @@ export default function ListingsPage() {
       governorateId: String(l.governorateId), phone: l.phone || "",
       whatsapp: l.whatsapp || "", email: l.email || "",
       website: l.website || "", address: l.address || "",
+      locationLat: l.locationLat != null ? String(l.locationLat) : "",
+      locationLng: l.locationLng != null ? String(l.locationLng) : "",
       isFeatured: l.isFeatured, isActive: l.isActive,
     });
     setCascadeFromCategory(l.category);
@@ -227,6 +232,8 @@ export default function ListingsPage() {
     email: form.email.trim() || undefined,
     website: form.website.trim() || undefined,
     address: form.address.trim() || undefined,
+    locationLat: form.locationLat.trim() ? Number(form.locationLat) : null,
+    locationLng: form.locationLng.trim() ? Number(form.locationLng) : null,
     isFeatured: form.isFeatured,
     isActive: form.isActive,
     images: images.length > 0 ? images : undefined,
@@ -407,6 +414,14 @@ export default function ListingsPage() {
         <div className="col-span-2 space-y-2">
           <Label>العنوان</Label>
           <Input value={form.address} onChange={(e) => setForm((p) => ({ ...p, address: e.target.value }))} placeholder="العنوان التفصيلي" />
+        </div>
+        <div className="space-y-2">
+          <Label>خط العرض (Lat)</Label>
+          <Input type="number" step="any" value={form.locationLat} onChange={(e) => setForm((p) => ({ ...p, locationLat: e.target.value }))} placeholder="مثال: 33.5138" />
+        </div>
+        <div className="space-y-2">
+          <Label>خط الطول (Lng)</Label>
+          <Input type="number" step="any" value={form.locationLng} onChange={(e) => setForm((p) => ({ ...p, locationLng: e.target.value }))} placeholder="مثال: 36.3117" />
         </div>
         <div className="flex items-center gap-3">
           <Switch checked={form.isFeatured} onCheckedChange={(v) => setForm((p) => ({ ...p, isFeatured: v }))} />

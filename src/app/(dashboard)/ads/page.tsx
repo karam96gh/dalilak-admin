@@ -34,7 +34,7 @@ interface AdForm {
 
 const defaultForm: AdForm = { imageUrl: "", linkUrl: "", order: 0, isActive: true, startDate: "", endDate: "" };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:1996/api/v1";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api/v1', '') || "http://localhost:1996";
 
 export default function AdsPage() {
   const { toast } = useToast();
@@ -93,8 +93,8 @@ export default function AdsPage() {
     linkUrl: f.linkUrl.trim() || undefined,
     order: f.order,
     isActive: f.isActive,
-    startDate: f.startDate || undefined,
-    endDate: f.endDate || undefined,
+    startDate: f.startDate ? new Date(f.startDate).toISOString() : undefined,
+    endDate: f.endDate ? new Date(f.endDate + "T23:59:59").toISOString() : undefined,
   });
 
   const handleAdd = async () => {
@@ -143,7 +143,7 @@ export default function AdsPage() {
   const getImageUrl = (url: string) => {
     if (!url) return "";
     if (url.startsWith("http")) return url;
-    return API_BASE + "/uploads/" + url.split("/").pop();
+    return API_BASE + url;
   };
 
   const FormBody = () => (
