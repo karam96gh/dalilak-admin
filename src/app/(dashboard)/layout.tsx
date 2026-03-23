@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/auth";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function DashboardLayout({
     children,
@@ -40,7 +41,9 @@ export default function DashboardLayout({
             </div>
             <main className="md:pr-64 h-full">
                 <Header />
-                <div className="p-6">{children}</div>
+                <ErrorBoundary>
+                    <div className="p-6">{children}</div>
+                </ErrorBoundary>
             </main>
         </div>
     );
