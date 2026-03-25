@@ -40,6 +40,7 @@ interface Listing {
 interface ListingForm {
   name: string; description: string; governorateId: string;
   phone: string; whatsapp: string; email: string; website: string; address: string;
+  instagram: string; facebook: string; tiktok: string;
   locationLat: string; locationLng: string;
   isFeatured: boolean; isActive: boolean;
 }
@@ -47,6 +48,7 @@ interface ListingForm {
 const defaultForm: ListingForm = {
   name: "", description: "", governorateId: "",
   phone: "", whatsapp: "", email: "", website: "", address: "",
+  instagram: "", facebook: "", tiktok: "",
   locationLat: "", locationLng: "",
   isFeatured: false, isActive: true,
 };
@@ -208,6 +210,7 @@ export default function ListingsPage() {
       governorateId: String(l.governorateId), phone: l.phone || "",
       whatsapp: l.whatsapp || "", email: l.email || "",
       website: l.website || "", address: l.address || "",
+      instagram: (l as any).instagram || "", facebook: (l as any).facebook || "", tiktok: (l as any).tiktok || "",
       locationLat: l.locationLat != null ? String(l.locationLat) : "",
       locationLng: l.locationLng != null ? String(l.locationLng) : "",
       isFeatured: l.isFeatured, isActive: l.isActive,
@@ -231,6 +234,9 @@ export default function ListingsPage() {
     whatsapp: form.whatsapp.trim() || undefined,
     email: form.email.trim() || undefined,
     website: form.website.trim() || undefined,
+    instagram: form.instagram.trim() || undefined,
+    facebook: form.facebook.trim() || undefined,
+    tiktok: form.tiktok.trim() || undefined,
     address: form.address.trim() || undefined,
     locationLat: form.locationLat.trim() ? Number(form.locationLat) : null,
     locationLng: form.locationLng.trim() ? Number(form.locationLng) : null,
@@ -410,6 +416,18 @@ export default function ListingsPage() {
         <div className="space-y-2">
           <Label>الموقع الإلكتروني</Label>
           <Input value={form.website} onChange={(e) => setForm((p) => ({ ...p, website: e.target.value }))} placeholder="https://..." />
+        </div>
+        <div className="space-y-2">
+          <Label>انستغرام</Label>
+          <Input value={form.instagram} onChange={(e) => setForm((p) => ({ ...p, instagram: e.target.value }))} placeholder="اسم الحساب" />
+        </div>
+        <div className="space-y-2">
+          <Label>فيسبوك</Label>
+          <Input value={form.facebook} onChange={(e) => setForm((p) => ({ ...p, facebook: e.target.value }))} placeholder="اسم الصفحة أو الرابط" />
+        </div>
+        <div className="space-y-2">
+          <Label>تيك توك</Label>
+          <Input value={form.tiktok} onChange={(e) => setForm((p) => ({ ...p, tiktok: e.target.value }))} placeholder="اسم الحساب" />
         </div>
         <div className="col-span-2 space-y-2">
           <Label>العنوان</Label>

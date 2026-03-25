@@ -10,11 +10,14 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
 interface Ad {
   id: number;
   image: string;
+  linkType: string | null;
+  linkId: number | null;
   linkUrl: string | null;
   order: number;
   isActive: boolean;
@@ -23,8 +26,15 @@ interface Ad {
   createdAt: string;
 }
 
+interface Listing {
+  id: number;
+  name: string;
+}
+
 interface AdForm {
   imageUrl: string;
+  linkType: string;
+  linkId: string;
   linkUrl: string;
   order: number;
   isActive: boolean;
@@ -32,7 +42,7 @@ interface AdForm {
   endDate: string;
 }
 
-const defaultForm: AdForm = { imageUrl: "", linkUrl: "", order: 0, isActive: true, startDate: "", endDate: "" };
+const defaultForm: AdForm = { imageUrl: "", linkType: "external", linkId: "", linkUrl: "", order: 0, isActive: true, startDate: "", endDate: "" };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api/v1', '') || "http://localhost:1996";
 
@@ -46,7 +56,14 @@ export default function AdsPage() {
   const [form, setForm] = useState<AdForm>(defaultForm);
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [listings, setListings] = useState<Listing[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    api.get("/admin/listings?limit=200").then((data: any) => {
+      setListings(data.data || []);
+    }).catch(console.error);
+  }, []);
 
   const fetchAds = useCallback(async () => {
     setLoading(true);
@@ -79,6 +96,8 @@ export default function AdsPage() {
     setEditTarget(ad);
     setForm({
       imageUrl: ad.image,
+      linkType: ad.linkType || "external",
+      linkId: ad.linkId ? String(ad.linkId) : "",
       linkUrl: ad.linkUrl || "",
       order: ad.order,
       isActive: ad.isActive,
@@ -90,7 +109,9 @@ export default function AdsPage() {
 
   const buildPayload = (f: AdForm) => ({
     image: f.imageUrl,
-    linkUrl: f.linkUrl.trim() || undefined,
+    linkType: f.linkType === "listing" ? "listing" : undefined,
+    linkId: f.linkType === "listing" && f.linkId ? Number(f.linkId) : undefined,
+    linkUrl: f.linkType === "external" && f.linkUrl.trim() ? f.linkUrl.trim() : undefined,
     order: f.order,
     isActive: f.isActive,
     startDate: f.startDate ? new Date(f.startDate).toISOString() : undefined,
@@ -175,9 +196,33 @@ export default function AdsPage() {
         )}
       </div>
       <div className="space-y-2">
-        <Label>رابط الإعلان</Label>
-        <Input value={form.linkUrl} onChange={(e) => setForm((p) => ({ ...p, linkUrl: e.target.value }))} placeholder="https://..." />
+        <Label>نوع الرابط</Label>
+        <Select value={form.linkType} onValueChange={(v) => setForm((p) => ({ ...p, linkType: v, linkId: "", linkUrl: "" }))}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="external">رابط خارجي (موقع إلكتروني)</SelectItem>
+            <SelectItem value="listing">محل داخل التطبيق</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
+      {form.linkType === "external" && (
+        <div className="space-y-2">
+          <Label>رابط الموقع</Label>
+          <Input value={form.linkUrl} onChange={(e) => setForm((p) => ({ ...p, linkUrl: e.target.value }))} placeholder="https://..." />
+        </div>
+      )}
+      {form.linkType === "listing" && (
+        <div className="space-y-2">
+          <Label>اختر المحل</Label>
+          <Select value={form.linkId || "none"} onValueChange={(v) => setForm((p) => ({ ...p, linkId: v === "none" ? "" : v }))}>
+            <SelectTrigger><SelectValue placeholder="اختر المحل" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">اختر المحل</SelectItem>
+              {listings.map((l) => <SelectItem key={l.id} value={String(l.id)}>{l.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
       <div className="space-y-2">
         <Label>الترتيب</Label>
         <Input type="number" value={form.order} onChange={(e) => setForm((p) => ({ ...p, order: Number(e.target.value) }))} />
@@ -235,7 +280,11 @@ export default function AdsPage() {
                         )}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground max-w-xs truncate">
-                        {ad.linkUrl || "—"}
+                        {ad.linkType === "listing" ? (
+                          <Badge variant="outline" className="bg-blue-50 text-blue-700">محل #{ad.linkId}</Badge>
+                        ) : ad.linkUrl ? (
+                          <span>{ad.linkUrl}</span>
+                        ) : "—"}
                       </TableCell>
                       <TableCell>{ad.order}</TableCell>
                       <TableCell>
